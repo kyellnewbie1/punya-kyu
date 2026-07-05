@@ -226,6 +226,7 @@
             if(savedVid) { document.getElementById('bg-video').src = savedVid; }
         };
 
+        // Navigator antar-tampilan statis dalam satu file
         function navigateTo(viewName) {
             document.getElementById('view-welcome').classList.add('hidden');
             document.getElementById('view-login').classList.add('hidden');
@@ -241,11 +242,6 @@
                 document.getElementById('main-footer').classList.add('hidden');
                 reloadProfileData();
             }
-        }
-
-        function openRegistrationWA() {
-            const waText = `Halo Owner Inverse Crown,%0A%0ASaya ingin mendaftar akun baru.%0AMohon panduannya untuk setup Akun.`;
-            window.open(`https://api.whatsapp.com/send?phone=6289531980008&text=${waText}`, '_blank');
         }
 
         // --- PROSES REGISTRASI OTOMATIS KE SUPABASE ---
@@ -369,7 +365,7 @@
         async function executeQuickApprove(id, targetUser, amount) {
             try {
                 const { data: profile } = await _supabase.from('users_profile').select('total_donate').eq('username', targetUser).single();
-                let balance Sekarang = profile ? profile.total_donate : 0;
+                let balanceSekarang = profile ? profile.total_donate : 0;
                 
                 await _supabase.from('users_profile').update({ total_donate: balanceSekarang + amount }).eq('username', targetUser);
                 await _supabase.from('pending_approvals').delete().eq('id', id);
@@ -424,43 +420,25 @@
         function previewImg(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function(e) { 
-                    document.getElementById('preview').src = e.target.result; 
-                    document.getElementById('preview').classList.remove('hidden'); 
-                    document.getElementById('prompt').classList.add('hidden'); 
-                }
+                reader.onload = function(e) { document.getElementById('preview').src = e.target.result; document.getElementById('preview').classList.remove('hidden'); document.getElementById('prompt').classList.add('hidden'); }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         // --- MANAJEMEN UPLOAD DATA TRANSAKSI ---
         async function submitBuktiToCloud(e) {
-            e.preventDefault(); 
-            const fileInput = document.getElementById('up-file');
-            const idW = document.getElementById('up-id').value; 
-            const user = document.getElementById('up-user').value;
-            const donateAmount = parseInt(document.getElementById('up-donate').value); 
-            
-            if (!fileInput.files[0]) return;
-            
-            const file = fileInput.files[0]; 
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`; 
-            const filePath = `bukti/${fileName}`;
+            e.preventDefault(); const fileInput = document.getElementById('up-file');
+            const idW = document.getElementById('up-id').value; const user = document.getElementById('up-user').value;
+            const donateAmount = parseInt(document.getElementById('up-donate').value); if (!fileInput.files[0]) return;
+            const file = fileInput.files[0]; const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`; const filePath = `bukti/${fileName}`;
             
             try {
                 await _supabase.storage.from('bukti-transfer').upload(filePath, file, { cacheControl: '3600', upsert: true });
                 const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
                 
-                await _supabase.from('pending_approvals').insert([{ 
-                    id_wibuku: idW, 
-                    username: user, 
-                    wibu_game_requested: donateAmount, 
-                    photo_url: urlData.publicUrl 
-                }]);
-                
-                const waText = `Halo Owner,%0A%0ASaya telah mengajukan top up saldo.%0A- *ID Wibuku:* ${idW}%0A- *Username:* ${user}%0A- *Jumlah:* ${donateAmount} Wibu Game`;
-                window.open(`https://api.whatsapp.com/send?phone=6289531980008&text=${waText}`, '_blank');
+                await _supabase.from('pending_approvals').insert([{ id_wibuku: idW, username: user, wibu_game_requested: donateAmount, photo_url: urlData.publicUrl }]);
+                window.open(`https://api.whatsapp.com/send?phone=6289531980008&text=Halo Owner, saya sudah top up ${donateAmount} Wibu Game`, '_blank');
                 location.reload();
             } catch (err) {
                 alert("Gagal memproses transaksi bukti.");
@@ -469,18 +447,17 @@
 
         function changeVideo() {
             let url = document.getElementById('video-url').value;
-            if(url) { 
-                localStorage.setItem('ic_custom_video', url); 
-                document.getElementById('bg-video').src = url; 
-                alert("Background updated!"); 
-            }
+            if(url) { localStorage.setItem('ic_custom_video', url); document.getElementById('bg-video').src = url; alert("Background updated!"); }
         }
 
-        function logout() { 
-            localStorage.clear(); 
-            activeUserSession = null; 
-            navigateTo('welcome'); 
-        }
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'q') {
+                event.preventDefault();
+                logout();
+            }
+        });
+
+        function logout() { localStorage.clear(); activeUserSession = null; navigateTo('welcome'); }
     </script>
 </body>
 </html>
