@@ -1,0 +1,18 @@
+{
+  "staff_accounts": [
+    {
+      "id_wibuku": "1592012",
+      "username": "Kamui",
+      "password": "Kamui1121",
+      "role": "Admin",
+      "title": "Leader"
+    },
+    {
+      "id_wibuku": "4990906",
+      "username": "Kyy Alveria",
+      "password": "KyySukaSuka",
+      "role": "Admin",
+      "title": "Vice Leader"
+    }
+  ]
+}
