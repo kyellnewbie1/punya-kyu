@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Crown - Owner Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style> body { background-color: #060305; } </style>
+</head>
+<body class="text-slate-100 min-h-screen p-4 relative">
+
+    <main class="w-full max-w-md mx-auto space-y-4">
+        <div class="flex justify-between items-center bg-zinc-900 border border-red-500/30 p-4 rounded-2xl">
+            <h2 class="text-xs font-black tracking-widest text-red-500 uppercase"><i class="fa-solid fa-user-shield mr-1"></i> Owner Approval Panel</h2>
+            <a href="dashboard.html" class="text-[10px] bg-zinc-800 px-3 py-1 rounded-xl border border-zinc-700">Kembali</a>
+        </div>
+
+        <div id="admin-container" class="space-y-3">
+            <div class="text-center py-6 text-zinc-600 text-xs">Loading queue database...</div>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = "https://smfrshlomjdeafxabvii.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_l5i2m71eYD45yBrAA_kdrw_dSddOWd4";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        window.onload = function() {
+            let session = JSON.parse(localStorage.getItem('ic_session'));
+            if(!session || session.role !== 'Admin') {
+                alert("Akses ditolak! Menu ini khusus untuk Admin/Owner.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            renderAdminList();
+        };
+
+        async function renderAdminList() {
+            const container = document.getElementById('admin-container');
+            
+            // Ambil data dari antrean pending_approvals di Supabase
+            const { data: pendingList, error } = await _supabase
+                .from('pending_approvals')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if(!pendingList || pendingList.length === 0) {
+                container.innerHTML = `<div class="bg-black/60 border border-zinc-800 p-8 text-center rounded-2xl text-xs text-zinc-500">Tidak ada pengajuan donasi Wibu Game saat ini.</div>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            pendingList.forEach(item => {
+                let card = document.createElement('div');
+                card.className = "bg-black/80 border border-red-500/20 p-4 rounded-2xl space-y-3 animate__animated animate__fadeIn";
+                card.innerHTML = `
+                    <div class="flex gap-3 items-center">
+                        <img src="${item.photo_url}" class="w-16 h-16 rounded-lg object-cover border border-zinc-800 bg-black">
+                        <div class="text-xs space-y-0.5">
+                            <span class="bg-red-950 text-red-400 px-2 py-0.5 rounded text-[9px] font-bold">${item.id_wibuku}</span>
+                            <h4 class="font-bold text-white text-sm">${item.username}</h4>
+                            <p class="text-amber-400 font-black">Jumlah: ${item.wibu_game_requested} Wibu Game</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-900">
+                        <button onclick="reject(${item.id})" class="py-1.5 bg-zinc-900 hover:bg-red-950 border border-zinc-800 text-xs rounded-xl font-bold transition-all">Reject</button>
+                        <button onclick="approve('${item.id}', '${item.username}', ${item.wibu_game_requested})" class="py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-xs rounded-xl font-bold transition-all">Approve</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function approve(id, username, amount) {
+            try {
+                // 1. Dapatkan saldo user saat ini
+                const { data: userProfile } = await _supabase.from('users_profile').select('total_donate').eq('username', username).single();
+                let currentDonate = userProfile ? userProfile.total_donate : 0;
+                let newBalance = currentDonate + amount;
+
+                // 2. Tambah isi saldo ke tabel user
+                await _supabase.from('users_profile').update({ total_donate: newBalance }).eq('username', username);
+
+                // 3. Hapus antrean pengajuan dari Supabase
+                await _supabase.from('pending_approvals').delete().eq('id', id);
+
+                alert(`Sukses menambahkan ${amount} Wibu Game ke akun ${username}!`);
+                renderAdminList();
+            } catch (e) {
+                alert("Gagal memproses approval.");
+            }
+        }
+
+        async function reject(id) {
+            if(confirm("Tolak pengajuan bukti transfer ini?")) {
+                await _supabase.from('pending_approvals').delete().eq('id', id);
+                alert("Pengajuan ditolak.");
+                renderAdminList();
+            }
+        }
+    </script>
+</body>
+</html>

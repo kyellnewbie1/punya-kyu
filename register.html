@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Crown - Register</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style> body { background-color: #060305; } </style>
+</head>
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-4 relative">
+
+    <video class="absolute inset-0 w-full h-full object-cover opacity-25 z-0" autoplay loop muted playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41857-large.mp4" type="video/mp4">
+    </video>
+
+    <div class="relative z-10 w-full max-w-md bg-black/80 border border-red-500/20 backdrop-blur-md p-6 rounded-3xl shadow-2xl space-y-4 animate__animated animate__backInDown">
+        <div class="text-center">
+            <h2 class="text-xl font-black tracking-widest text-white">REGISTRATION</h2>
+            <p class="text-[10px] text-zinc-500 uppercase tracking-wider">Teruskan data pendaftaran ke WhatsApp Owner</p>
+        </div>
+
+        <form id="regForm" class="space-y-3">
+            <input type="text" id="reg-id" placeholder="ID Wibuku (Contoh: WBK-771)" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
+            <input type="text" id="reg-user" placeholder="Username Pilihan" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
+            <input type="password" id="reg-pass" placeholder="Password Akun" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
+            
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 mt-2">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Daftar Via WhatsApp
+            </button>
+        </form>
+        <p class="text-center text-[11px] text-zinc-500">Sudah punya akun? <a href="login.html" class="text-red-500 hover:underline">Login</a></p>
+    </div>
+
+    <script>
+        document.getElementById('regForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ownerNumber = "6285188448577"; // Ubah jadi nomor WA Anda
+            const idW = document.getElementById('reg-id').value;
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            const text = `Halo Owner Inverse Crown,%0A%0ASaya ingin mendaftar akun manual baru:%0A- *ID Wibuku:* ${idW}%0A- *Username:* ${user}%0A- *Password:* ${pass}%0A%0AMohon segera diproses!`;
+            window.open(`https://api.whatsapp.com/send?phone=${ownerNumber}&text=${text}`, '_blank');
+        });
+    </script>
+</body>
+</html>

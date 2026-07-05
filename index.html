@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Crown - Welcome</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #060305; font-family: 'Outfit', sans-serif; }
+        .cyber-glow { text-shadow: 0 0 15px #ff003c, 0 0 30px #ff003c; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between p-4 relative overflow-hidden">
+
+    <video class="absolute inset-0 w-full h-full object-cover opacity-30 z-0" autoplay loop muted playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41857-large.mp4" type="video/mp4">
+    </video>
+
+    <div class="relative z-10 w-full max-w-md mx-auto my-auto text-center space-y-8 animate__animated animate__zoomIn">
+        <div class="inline-flex w-20 h-20 bg-gradient-to-br from-red-600 to-rose-950 rounded-2xl items-center justify-center border border-red-500 shadow-[0_0_20px_rgba(255,0,60,0.5)]">
+            <i class="fa-solid fa-crown text-3xl text-white animate-pulse"></i>
+        </div>
+        
+        <div>
+            <h1 class="text-3xl font-black tracking-widest text-white cyber-glow">INVERSE CROWN</h1>
+            <p class="text-xs text-red-500 uppercase tracking-widest mt-1 font-bold">Mobile Gateway Portal</p>
+        </div>
+
+        <div class="bg-black/70 p-6 rounded-3xl border border-red-500/20 backdrop-blur-md space-y-4 shadow-xl">
+            <a href="login.html" class="block w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(255,0,60,0.3)]">
+                Masuk Portal
+            </a>
+            <a href="register.html" class="block w-full py-3 bg-zinc-900 hover:bg-zinc-800 border border-white/10 rounded-xl font-bold text-xs tracking-widest uppercase transition-all">
+                Daftar Akun Baru
+            </a>
+        </div>
+    </div>
+
+    <footer class="relative z-10 text-center text-[10px] text-zinc-600 font-mono tracking-widest">
+        &copy; 2026 INVERSE CROWN MATRIX
+    </footer>
+</body>
+</html>
