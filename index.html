@@ -1,466 +1,670 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inverse Crown - Portal Space</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Alveria - Cyber-Oni Portal</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* THEME COLORS: Inspired by Cyber-Oni */
+    :root {
+      --oni-black: #08080c;
+      --oni-dark: #121217;
+      --oni-red: #e61e31; /* Neon Red */
+      --oni-purple: #9d1dfd; /* Cyber Purple */
+      --oni-text: #ececf1;
+    }
+
+    /* GLOBAL STYLES & MOBILE OPTIMIZATION */
+    body {
+      background-color: var(--oni-black);
+      color: var(--oni-text);
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: env(safe-area-inset-bottom); /* Fix for iOS notches */
+    }
+
+    /* Hiding elements initially for Single Page Application style */
+    .page { display: none; opacity: 0; transform: translateY(15px); transition: all 0.5s ease; }
+    .page.active { display: flex; opacity: 1; transform: translateY(0); }
+
+    /* CORE ANIMATIONS */
+    @keyframes glitched {
+      0% { text-shadow: 0.5px 0 0 #0f0, -0.5px 0 0 #f00; }
+      100% { text-shadow: 2px 0 0 #0f0, -2px 0 0 #f00; }
+    }
     
-    <style>
-        body { background-color: #060305; font-family: 'Outfit', sans-serif; }
-        .bling-rainbow {
-            background: linear-gradient(90deg, #ff0055, #ffcc00, #00ff66, #00ffff, #b300ff, #ff0055);
-            background-size: 300% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow-shift 4s linear infinite;
-            font-weight: 900;
-        }
-        @keyframes rainbow-shift { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
-        .admin-glow { text-shadow: 0 0 10px #ff003c; }
-        .cyber-glow { text-shadow: 0 0 15px #ff003c, 0 0 30px #ff003c; }
-    </style>
+    @keyframes neon-pulse {
+      0%, 100% { box-shadow: 0 0 5px var(--oni-red), 0 0 10px var(--oni-red); }
+      50% { box-shadow: 0 0 15px var(--oni-red), 0 0 25px var(--oni-red); }
+    }
+
+    /* BLING-BLING TITLES (Glitched & Neon) */
+    .bling-title {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: glitched 0.3s ease-in-out infinite alternate;
+      color: white;
+    }
+
+    /* Admin Special Rainbow Bling-Bling Pelangi */
+    @keyframes rainbow-bling {
+      0% { color: #ff0000; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+      20% { color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+      40% { color: #0000ff; text-shadow: 0 0 10px #0000ff, 0 0 20px #0000ff; }
+      60% { color: #00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; }
+      80% { color: #00ff00; text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
+      100% { color: #ffff00; text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; }
+    }
+    .admin-bling {
+      animation: rainbow-bling 3s linear infinite;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+    }
+
+    /* PRESTIGE BUTTONS (Neon Red) */
+    .btn-prestige {
+      background: linear-gradient(135deg, #200000 0%, #600000 100%);
+      border: 1px solid var(--oni-red);
+      color: #ff9999;
+      box-shadow: 0 0 10px rgba(230, 30, 49, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-prestige:active {
+      transform: scale(0.96);
+      box-shadow: 0 0 20px rgba(230, 30, 49, 0.8);
+      color: white;
+    }
+
+    /* PRESTIGE CARDS */
+    .card-prestige {
+      background: rgba(18, 18, 23, 0.8);
+      border: 1px solid rgba(230, 30, 49, 0.3);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    /* LOADING OVERLAY */
+    #loadingOverlay {
+      display: none;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+    }
+  </style>
 </head>
-<body class="text-slate-100 min-h-screen pb-24 relative overflow-x-hidden flex flex-col justify-between p-4">
+<body>
 
-    <div class="fixed inset-0 z-0 opacity-30 pointer-events-none">
-        <video id="bg-video" class="w-full h-full object-cover" autoplay loop muted playsinline>
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41857-large.mp4" type="video/mp4">
-        </video>
-    </div>
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute inset-0 z-10" style="background: radial-gradient(circle at center, rgba(18, 18, 23, 0.5) 0%, rgba(8, 8, 12, 1) 100%);"></div>
+    <video id="bgVideo" autoplay loop muted playsinline class="w-full h-full object-cover">
+      <source id="bgVideoSource" src="" type="video/mp4">
+    </video>
+  </div>
 
-    <div id="admin-notif-box" class="fixed top-4 left-4 right-4 z-50 max-w-sm mx-auto hidden">
-        <div class="bg-black/95 border-2 border-red-500 rounded-2xl p-4 shadow-[0_0_25px_rgba(255,0,60,0.6)] backdrop-blur-md flex flex-col gap-3">
-            <div class="flex justify-between items-start">
-                <div class="flex gap-2 items-center">
-                    <i class="fa-solid fa-bell text-red-500 animate-bounce"></i>
-                    <span class="text-[10px] bg-red-950 text-red-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Top Up Request</span>
-                </div>
-                <button onclick="closeNotif()" class="text-zinc-500 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="flex gap-3 items-center">
-                <img id="notif-img" src="" class="w-14 h-14 rounded-lg object-cover border-2 border-red-500 shadow-[0_0_5px_#ff003c] bg-zinc-900">
-                <div class="text-xs">
-                    <p class="text-zinc-400">User: <span id="notif-user" class="font-bold text-white"></span> (<span id="notif-id" class="font-mono text-red-400"></span>)</p>
-                    <p class="text-amber-400 font-black mt-0.5 text-sm">Jumlah: <span id="notif-amount"></span> Wibu Game</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-2 pt-1">
-                <button id="btn-reject-notif" class="py-1.5 bg-zinc-900 hover:bg-zinc-800 text-red-400 border border-zinc-800 rounded-xl text-xs font-bold transition-all">Reject</button>
-                <button id="btn-approve-notif" class="py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl text-xs font-black tracking-wider uppercase transition-all">Approve</button>
-            </div>
-        </div>
-    </div>
+  <div id="loadingOverlay" class="fixed inset-0 z-100 flex flex-col justify-center items-center">
+    <div class="w-16 h-16 border-4 border-slate-700 border-t-[var(--oni-red)] rounded-full animate-spin mb-4"></div>
+    <p class="text-xs text-slate-400 font-mono tracking-widest">EXECUTING_COMMAND...</p>
+  </div>
 
-    <div id="view-welcome" class="relative z-10 w-full max-w-md mx-auto my-auto text-center space-y-8 animate__animated animate__zoomIn">
-        <div class="inline-flex w-20 h-20 bg-gradient-to-br from-red-600 to-rose-950 rounded-2xl items-center justify-center border border-red-500 shadow-[0_0_20px_rgba(255,0,60,0.5)]">
-            <i class="fa-solid fa-crown text-3xl text-white animate-pulse"></i>
+  <div id="notification" class="hidden fixed top-6 left-1/2 -translate-x-1/2 card-prestige text-white px-5 py-3 rounded-xl shadow-lg text-sm animate__animated animate__backInDown z-110 border-l-4 border-l-[var(--oni-red)] flex items-center gap-3">
+    <i class="fa-solid fa-triangle-exclamation text-[var(--oni-red)]"></i>
+    <span id="notifText">Message.system</span>
+  </div>
+
+  <div class="relative z-20 max-w-md mx-auto h-screen flex flex-col justify-between overflow-hidden p-4">
+    
+    <header class="flex justify-between items-center py-2 mb-2 animate__animated animate__fadeInDown">
+      <h1 class="bling-title text-xl text-white">A L V E R I A</h1>
+      <div class="flex items-center gap-2">
+        <span id="headerRoleBadge" class="hidden text-[10px] px-2 py-0.5 rounded-md border tracking-wider">USER</span>
+        <img id="headerAvatar" src="https://api.dicebear.com/8.x/notionists-neutral/svg?seed=AlveriaUser" class="w-8 h-8 rounded-full border border-slate-700 hidden" alt="Avatar">
+      </div>
+    </header>
+
+    <div id="page-login" class="page active flex-col justify-center items-center h-full w-full">
+      <div class="w-full card-prestige p-7 rounded-2xl animate__animated animate__zoomIn">
+        <div class="text-center mb-8 relative">
+          <div class="w-24 h-24 bg-cover bg-center rounded-full mx-auto border-4 border-[var(--oni-red)] mb-4 animate__animated animate__pulse animate__infinite" style="background-image: url('https://sucjfcidkuwpowcuhiby.supabase.co/storage/v1/object/public/system/login-oni.png'); box-shadow: 0 0 25px rgba(230, 30, 49, 0.7);"></div>
+          <h2 class="text-3xl font-black tracking-tight text-white glitched">PORTAL ACCESS</h2>
+          <p class="text-xs text-slate-400 font-mono">AUTHORIZED PERSONNEL ONLY</p>
         </div>
         
+        <div class="space-y-4">
+          <div class="relative">
+            <i class="fa-solid fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-sm"></i>
+            <input type="text" id="loginIdWibuku" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[var(--oni-red)] focus:ring-1 focus:ring-[var(--oni-red)] transition-all placeholder:text-slate-600" placeholder="ID_WIBUKU (e.g., 1592012)">
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-sm"></i>
+            <input type="text" id="loginUser" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[var(--oni-red)] transition-all placeholder:text-slate-600" placeholder="OPERATOR_CODE">
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-sm"></i>
+            <input type="password" id="loginPass" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:outline-none focus:border-[var(--oni-red)] transition-all placeholder:text-slate-600" placeholder="ACCESS_KEY">
+          </div>
+          <button onclick="handleLogin()" class="w-full btn-prestige text-white font-bold py-3.5 rounded-xl text-md mt-4 flex items-center justify-center gap-3">
+            <span>INITIATE LINK</span> <i class="fa-solid fa-satellite-dish animate-pulse"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-dashboard" class="page flex-col h-full w-full pt-2 overflow-y-auto pb-24">
+      <div class="card-prestige p-5 rounded-xl mb-5 border-l-4 border-l-[var(--oni-red)]">
+        <p class="text-xs text-slate-400 font-mono">WELCOME, OPERATOR</p>
+        <h3 id="dashGreeting" class="text-xl font-black text-white glitched">SYSTEM_ERROR</h3>
+        <p class="text-xs mt-1 font-mono text-emerald-400">STATUS: ONLINE / LINKED</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div class="card-prestige p-4 rounded-xl flex items-center gap-3">
+          <i class="fa-solid fa-microchip text-2xl text-[var(--oni-red)]"></i>
+          <div>
+            <p class="text-[10px] text-slate-500">SYSTEM CORES</p>
+            <p class="text-sm font-bold">A L V E R I A</p>
+          </div>
+        </div>
+        <div class="card-prestige p-4 rounded-xl flex items-center gap-3 border border-[var(--oni-purple)]">
+          <i class="fa-solid fa-shield-blank text-2xl text-[var(--oni-purple)]"></i>
+          <div>
+            <p class="text-[10px] text-slate-500">ACCESS LEVEL</p>
+            <p id="dashRoleDisplay" class="text-xs font-bold truncate max-w-[80px]">GUEST</p>
+          </div>
+        </div>
+      </div>
+
+      <h4 class="text-sm font-semibold text-slate-300 mb-3 px-1 font-mono">ACTIVE COMMANDS</h4>
+      <div class="space-y-3">
+        <div class="card-prestige p-4 rounded-xl flex justify-between items-center active:scale-98 transition-transform" onclick="switchPage('upload')">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-file-contract text-[var(--oni-red)] text-lg"></i>
+            <div>
+              <p class="text-sm font-bold text-white">Kirim Bukti Kontrak</p>
+              <p class="text-[10px] text-slate-500">Transmisi enkripsi file bukti bayar</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-600"></i>
+        </div>
+        <div class="card-prestige p-4 rounded-xl flex justify-between items-center active:scale-98 transition-transform" onclick="switchPage('profile')">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-user-gear text-[var(--oni-purple)] text-lg"></i>
+            <div>
+              <p class="text-sm font-bold text-white">Konfigurasi Profil</p>
+              <p class="text-[10px] text-slate-500">Edit foto identitas & kode operator</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-600"></i>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-upload" class="page flex-col h-full w-full pt-2 overflow-y-auto pb-24">
+      <h3 class="text-2xl font-black mb-5 glitched text-white"><i class="fa-solid fa-satellite text-[var(--oni-red)] mr-3"></i>Data Link</h3>
+      
+      <div class="card-prestige p-6 rounded-2xl space-y-5">
         <div>
-            <h1 class="text-3xl font-black tracking-widest text-white cyber-glow">INVERSE CROWN</h1>
-            <p class="text-xs text-red-500 uppercase tracking-widest mt-1 font-bold">Mobile Gateway Portal</p>
+          <label class="text-xs text-slate-400 block mb-3 font-mono">SELECT_FILE_FOR_TRANSMISSION</label>
+          <div class="border-2 border-dashed border-slate-700 rounded-xl p-8 text-center active:border-[var(--oni-red)] transition-colors relative flex flex-col items-center justify-center gap-3 bg-slate-950">
+            <input type="file" id="fileBukti" class="absolute inset-0 opacity-0 cursor-pointer" onchange="updateFileName(this, 'fileName')">
+            <i class="fa-solid fa-cloud-arrow-up text-5xl text-slate-600 mb-2"></i>
+            <p id="fileName" class="text-xs text-slate-400 font-mono break-all">CHOOSE_LOCAL_DATA</p>
+            <p class="text-[10px] text-slate-600">MAX_SIZE: 5MB (PNG/JPG)</p>
+          </div>
         </div>
-
-        <div class="bg-black/70 p-6 rounded-3xl border border-red-500/20 backdrop-blur-md space-y-4 shadow-xl">
-            <button onclick="navigateTo('login')" class="block w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(255,0,60,0.3)]">
-                Masuk Portal
-            </button>
-            <button onclick="navigateTo('register')" class="block w-full py-3 bg-zinc-900 hover:bg-zinc-800 border border-white/10 rounded-xl font-bold text-xs tracking-widest uppercase transition-all">
-                Daftar Akun Baru
-            </button>
-        </div>
+        <button onclick="handleUpload()" class="w-full btn-prestige text-white font-bold py-3.5 rounded-xl text-md flex items-center justify-center gap-3">
+          INITIATE UPLOAD <i class="fa-solid fa-arrow-up-from-bracket"></i>
+        </button>
+      </div>
     </div>
 
-    <div id="view-login" class="relative z-10 w-full my-auto flex items-center justify-center p-4 hidden">
-        <div class="w-full max-w-sm bg-black/85 border border-red-500/20 backdrop-blur-md p-6 rounded-3xl shadow-2xl space-y-5 animate__animated animate__fadeInUp">
-            <div class="text-center">
-                <h2 class="text-xl font-black tracking-widest text-white admin-glow">GATEWAY LOGIN</h2>
-                <p class="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">Masuk ke Ruang Matrix</p>
-            </div>
+    <div id="page-profile" class="page flex-col h-full w-full pt-2 overflow-y-auto pb-24">
+      <h3 class="text-2xl font-black mb-5 glitched text-white"><i class="fa-solid fa-user-gear text-[var(--oni-purple)] mr-3"></i>Config</h3>
 
-            <form onsubmit="handleAuth(event)" class="space-y-4">
-                <input type="text" id="auth-user" placeholder="Username" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
-                <input type="password" id="auth-pass" placeholder="Password" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
-                <button type="submit" id="btn-login-submit" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all">Sign In</button>
-            </form>
-            <div class="text-center flex flex-col gap-2 pt-2">
-                <button onclick="navigateTo('register')" class="text-[11px] text-red-400 hover:underline">Belum punya akun? Daftar disini</button>
-                <button onclick="navigateTo('welcome')" class="text-xs text-zinc-500 hover:text-white underline">Kembali</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-register" class="relative z-10 w-full my-auto flex items-center justify-center p-4 hidden">
-        <div class="w-full max-w-sm bg-black/85 border border-red-500/20 backdrop-blur-md p-6 rounded-3xl shadow-2xl space-y-5 animate__animated animate__fadeInUp">
-            <div class="text-center">
-                <h2 class="text-xl font-black tracking-widest text-white text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-400">CREATE ACCOUNT</h2>
-                <p class="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">Pendaftaran Otomatis Cloud</p>
-            </div>
-
-            <form onsubmit="handleRegister(event)" class="space-y-4">
-                <input type="text" id="reg-id" placeholder="Masukkan ID Wibuku (Contoh: 12345)" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
-                <input type="text" id="reg-user" placeholder="Username Pilihan" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
-                <input type="password" id="reg-pass" placeholder="Password Akun" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-red-500 transition-all text-white" required>
-                <button type="submit" id="btn-reg-submit" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)]">Daftar Akun Otomatis</button>
-            </form>
-            <div class="text-center flex flex-col gap-2 pt-2">
-                <button onclick="navigateTo('login')" class="text-[11px] text-zinc-400 hover:underline">Sudah punya akun? Login saja</button>
-                <button onclick="navigateTo('welcome')" class="text-xs text-zinc-500 hover:text-white underline">Kembali</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-dashboard" class="relative z-10 w-full max-w-md mx-auto p-4 space-y-5 hidden">
-        <div class="flex justify-between items-center bg-black/60 p-4 rounded-2xl border border-red-500/20 backdrop-blur-md">
-            <h1 class="text-sm font-black tracking-widest text-white"><i class="fa-solid fa-crown text-red-500 mr-1.5"></i> INVERSE CROWN</h1>
-            <span class="text-[9px] text-zinc-500 font-mono tracking-wider">SECURE NODE</span>
-        </div>
-
-        <div class="bg-black/80 border border-red-500/20 rounded-3xl p-5 text-center relative overflow-hidden shadow-2xl">
-            <div class="w-20 h-20 mx-auto mb-3 relative group cursor-pointer" onclick="triggerAvatarUpload()">
-                <div class="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all z-20">
-                    <i class="fa-solid fa-camera text-sm text-white"></i>
-                </div>
-                <img src="" id="user-avatar" class="rounded-full border border-red-500 p-1 bg-zinc-950 w-full h-full object-cover relative z-10">
-                <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="uploadNewAvatar(this)">
-            </div>
-
-            <h2 id="prof-user" class="text-base font-bold text-white">...</h2>
-            <p id="prof-id" class="text-[10px] text-red-500 font-mono">ID: ...</p>
-            
-            <div class="mt-3 inline-flex items-center gap-1 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
-                <span class="text-[9px] text-zinc-400 uppercase tracking-wider">Rank Title:</span>
-                <span id="prof-title" class="text-xs">Loading...</span>
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-zinc-900 flex justify-between text-left px-2">
-                <div>
-                    <span class="text-[9px] text-zinc-500 uppercase block">Total Balance</span>
-                    <span id="prof-donate" class="text-sm font-black text-amber-400">0 Wibu Game</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-[9px] text-zinc-500 uppercase block">System Account</span>
-                    <span id="prof-role" class="text-[10px] text-emerald-400 font-bold">User</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-black/80 border border-red-500/20 rounded-3xl p-5 space-y-4 shadow-2xl">
-            <h3 class="text-xs font-black tracking-wider text-white uppercase flex items-center gap-1.5"><i class="fa-solid fa-cloud-arrow-up text-red-500"></i> Tempat Upload Donasi</h3>
-            
-            <form onsubmit="submitBuktiToCloud(event)" class="space-y-3">
-                <div>
-                    <label class="block text-[9px] uppercase text-zinc-400 font-bold mb-1">Upload Foto Bukti</label>
-                    <div class="border border-dashed border-zinc-800 bg-zinc-950/50 rounded-xl p-3 text-center cursor-pointer relative">
-                        <input type="file" id="up-file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" required onchange="previewImg(this)">
-                        <div id="prompt" class="text-[11px] text-zinc-500"><i class="fa-solid fa-image mb-1 text-base block text-red-500/50"></i> Pilih Gambar Transaksi</div>
-                        <img id="preview" class="hidden max-h-32 mx-auto rounded border border-red-500/30">
-                    </div>
-                </div>
-                <input type="text" id="up-id" placeholder="ID Wibuku" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none" required readonly>
-                <input type="text" id="up-user" placeholder="Username" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none" required readonly>
-                <input type="number" id="up-donate" placeholder="Jumlah (Wibu Game)" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-red-500" required>
-
-                <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest">Kirim & Kirim Notif WA</button>
-            </form>
-        </div>
-
-        <div id="admin-bg-manager" class="bg-black/80 border border-zinc-800 rounded-3xl p-4 space-y-3 hidden">
-            <h4 class="text-[11px] font-bold text-red-400 uppercase"><i class="fa-solid fa-video text-red-500 mr-1"></i> [ADMIN] Ganti Latar Belakang Video (.mp4)</h4>
-            <div class="flex gap-2">
-                <input type="text" id="video-url" placeholder="Paste URL mentah file video .mp4" class="flex-grow bg-zinc-950 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none">
-                <button onclick="changeVideo()" class="px-3 bg-red-600 text-xs font-bold rounded-xl border border-red-500">Apply</button>
-            </div>
-        </div>
-
-        <div class="text-center">
-            <button onclick="logout()" class="text-xs text-zinc-600 hover:text-red-500 underline">Sign Out Session</button>
-        </div>
-    </div>
-
-    <footer id="main-footer" class="relative z-10 text-center text-[10px] text-zinc-600 font-mono tracking-widest mt-auto pt-8">
-        &copy; 2026 INVERSE CROWN MATRIX
-    </footer>
-
-    <script>
-        const SUPABASE_URL = "https://smfrshlomjdeafxabvii.supabase.co"; 
-        const SUPABASE_ANON_KEY = "sb_publishable_l5i2m71eYD45yBrAA_kdrw_dSddOWd4";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let activeUserSession = null;
-
-        window.onload = async function() {
-            activeUserSession = JSON.parse(localStorage.getItem('ic_session'));
-            if (activeUserSession) { 
-                navigateTo('dashboard'); 
-            } else { 
-                navigateTo('welcome'); 
-            }
-            let savedVid = localStorage.getItem('ic_custom_video');
-            if(savedVid) { 
-                document.getElementById('bg-video').src = savedVid; 
-            }
-        };
-
-        function navigateTo(viewName) {
-            document.getElementById('view-welcome').classList.add('hidden');
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-register').classList.add('hidden');
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('main-footer').classList.remove('hidden');
-
-            if(viewName === 'welcome') { 
-                document.getElementById('view-welcome').classList.remove('hidden'); 
-            } else if(viewName === 'login') { 
-                document.getElementById('view-login').classList.remove('hidden'); 
-            } else if(viewName === 'register') { 
-                document.getElementById('view-register').classList.remove('hidden'); 
-            } else if(viewName === 'dashboard') {
-                document.getElementById('view-dashboard').classList.remove('hidden');
-                document.getElementById('main-footer').classList.add('hidden');
-                reloadProfileData();
-            }
-        }
-
-        // --- SISTEM PENDAFTARAN USER BARU ---
-        async function handleRegister(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-reg-submit');
-            btn.disabled = true; btn.innerText = "Creating Profile...";
-
-            const idWibukuInput = document.getElementById('reg-id').value.trim();
-            const usernameInput = document.getElementById('reg-user').value.trim();
-            const passwordInput = document.getElementById('reg-pass').value.trim();
-
-            try {
-                const { data, error } = await _supabase.from('users_profile').insert([{
-                    id_wibuku: idWibukuInput,
-                    username: usernameInput,
-                    password: passwordInput,
-                    role: "User",
-                    total_donate: 0
-                }]);
-
-                if (error) {
-                    if(error.message.includes('unique')) { 
-                        throw new Error("Username atau ID Wibuku sudah terpakai!"); 
-                    }
-                    throw error;
-                }
-
-                activeUserSession = { username: usernameInput, idWibuku: idWibukuInput, role: "User", title: "User" };
-                localStorage.setItem('ic_session', JSON.stringify(activeUserSession));
-
-                alert("Akun otomatis terdaftar di Database Cloud!");
-                navigateTo('dashboard');
-            } catch (err) {
-                alert("Gagal Daftar: " + err.message);
-            } finally {
-                btn.disabled = false; btn.innerText = "Daftar Akun Otomatis";
-            }
-        }
-
-        // --- FIX LOGIKA OTENTIKASI LOGIN AMAN ---
-        async function handleAuth(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-login-submit');
-            btn.disabled = true; btn.innerText = "Verifying...";
-
-            const usernameInput = document.getElementById('auth-user').value.trim();
-            const passwordInput = document.getElementById('auth-pass').value.trim();
-
-            try {
-                // Cari data berdasarkan username
-                const { data: userDb, error } = await _supabase.from('users_profile').select('*').eq('username', usernameInput).single();
-
-                // Konversi password database dan input menjadi String agar tipe data cocok sempurna (mengatasi bentrok tipe data Number vs String)
-                if (userDb && (String(userDb.password) === String(passwordInput) || (!userDb.password && String(passwordInput) === '12345'))) {
-                    activeUserSession = {
-                        username: userDb.username,
-                        idWibuku: String(userDb.id_wibuku),
-                        role: userDb.role,
-                        title: userDb.role === 'Admin' ? (userDb.username === 'Kamui' ? 'Leader' : 'Vice Leader') : 'User'
-                    };
-                    localStorage.setItem('ic_session', JSON.stringify(activeUserSession));
-                    alert(`Akses Diterima! Selamat datang kembali.`);
-                    navigateTo('dashboard');
-                } else {
-                    alert("Username atau Password salah!");
-                }
-            } catch (err) {
-                alert("Error Login: " + err.message);
-            } finally {
-                btn.disabled = false; btn.innerText = "Sign In";
-            }
-        }
-
-        // --- MEMUAT ULANG PANEL DATA PROFIL SECARA SINKRON ---
-        async function reloadProfileData() {
-            if (!activeUserSession) return;
-            const { data: userProfile } = await _supabase.from('users_profile').select('*').eq('username', activeUserSession.username).single();
-            
-            if (userProfile) {
-                document.getElementById('prof-user').innerText = userProfile.username;
-                document.getElementById('prof-id').innerText = "ID: " + userProfile.id_wibuku;
-                document.getElementById('prof-donate').innerText = userProfile.total_donate + " Wibu Game";
-                document.getElementById('prof-role').innerText = userProfile.role;
-                document.getElementById('up-id').value = userProfile.id_wibuku;
-                document.getElementById('up-user').value = userProfile.username;
-
-                const titleEl = document.getElementById('prof-title');
-                const bgManager = document.getElementById('admin-bg-manager');
-
-                if (userProfile.role === 'Admin') {
-                    titleEl.innerText = `👑 ${activeUserSession.title || 'Admin'} 👑`;
-                    titleEl.className = "text-xs font-black text-red-500 uppercase tracking-widest admin-glow animate-pulse";
-                    bgManager.classList.remove('hidden'); 
-                    listenRealtimeApprovals();
-                } else {
-                    titleEl.innerText = getDynamicUserTitle(userProfile.total_donate);
-                    titleEl.className = "text-xs bling-rainbow";
-                    bgManager.classList.add('hidden'); 
-                }
-
-                if (userProfile.avatar_url && userProfile.avatar_url.trim() !== "") {
-                    document.getElementById('user-avatar').src = userProfile.avatar_url;
-                } else {
-                    document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${userProfile.username}&backgroundColor=060305`;
-                }
-            }
-        }
-
-        // --- SINKRONISASI RADAR REAL-TIME NOTIFIKASI POP-UP ---
-        function listenRealtimeApprovals() {
-            _supabase.channel('schema-db-changes').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pending_approvals' }, (payload) => { showAdminNotifPopUp(payload.new); }).subscribe();
-        }
-
-        function showAdminNotifPopUp(data) {
-            document.getElementById('notif-img').src = data.photo_url;
-            document.getElementById('notif-user').innerText = data.username;
-            document.getElementById('notif-id').innerText = data.id_wibuku;
-            document.getElementById('notif-amount').innerText = data.wibu_game_requested.toLocaleString('id-ID');
-            document.getElementById('btn-approve-notif').onclick = function() { executeQuickApprove(data.id, data.username, data.wibu_game_requested); };
-            document.getElementById('btn-reject-notif').onclick = function() { executeQuickReject(data.id); };
-            document.getElementById('admin-notif-box').classList.remove('hidden');
-        }
-
-        async function executeQuickApprove(id, targetUser, amount) {
-            try {
-                const { data: profile } = await _supabase.from('users_profile').select('total_donate').eq('username', targetUser).single();
-                let balanceSekarang = profile ? profile.total_donate : 0;
-                
-                await _supabase.from('users_profile').update({ total_donate: balanceSekarang + amount }).eq('username', targetUser);
-                await _supabase.from('pending_approvals').delete().eq('id', id);
-                
-                alert(`Approve Sukses! Menambahkan ${amount} Wibu Game.`);
-                closeNotif(); 
-                reloadProfileData();
-            } catch (err) {
-                alert("Gagal memproses approval.");
-            }
-        }
-
-        async function executeQuickReject(id) { 
-            await _supabase.from('pending_approvals').delete().eq('id', id); 
-            closeNotif(); 
-        }
-
-        function closeNotif() { document.getElementById('admin-notif-box').classList.add('hidden'); }
+      <div class="card-prestige p-6 rounded-2xl text-center relative overflow-hidden mb-6 flex flex-col items-center">
         
-        // --- FITUR MENGUNGHAH FOTO AVATAR ---
-        function triggerAvatarUpload() { document.getElementById('avatar-file-input').click(); }
+        <div class="relative group mb-4">
+          <img id="profAvatar" src="" class="w-28 h-28 rounded-full border-4 border-[var(--oni-purple)] object-cover shadow-2xl" alt="Operator Avatar">
+          <label for="avatarInput" class="absolute inset-0 flex items-center justify-center bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+            <i class="fa-solid fa-camera text-2xl text-white"></i>
+          </label>
+          <input type="file" id="avatarInput" class="hidden" accept="image/png, image/jpeg" onchange="updateFileName(this, 'profAvatarStatus'); handleAvatarUpload(this)">
+          <div id="avatarLoading" class="hidden absolute inset-0 bg-black/70 rounded-full flex items-center justify-center">
+            <div class="w-8 h-8 border-2 border-slate-600 border-t-[var(--oni-purple)] rounded-full animate-spin"></div>
+          </div>
+        </div>
         
-        async function uploadNewAvatar(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0]; 
-            const fileExt = file.name.split('.').pop();
-            const fileName = `avatar_${activeUserSession.username}_${Date.now()}.${fileExt}`; 
-            const filePath = `avatars/${fileName}`;
-            
-            document.getElementById('user-avatar').classList.add('animate-pulse');
-            
-            try {
-                await _supabase.storage.from('bukti-transfer').upload(filePath, file, { cacheControl: '3600', upsert: true });
-                const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
-                await _supabase.from('users_profile').update({ avatar_url: urlData.publicUrl }).eq('username', activeUserSession.username);
-                
-                document.getElementById('user-avatar').src = urlData.publicUrl;
-                alert("Foto profil berhasil diperbarui!");
-            } catch (err) {
-                alert("Gagal upload foto profil.");
-            } finally {
-                document.getElementById('user-avatar').classList.remove('animate-pulse');
+        <p id="profAvatarStatus" class="text-[10px] text-slate-600 font-mono mb-2">Tap photo to change</p>
+        
+        <h4 id="profUsername" class="text-2xl font-black text-white tracking-tight">OPERATOR_ID</h4>
+        <p id="profIdWibuku" class="text-sm text-[var(--oni-purple)] font-mono mb-3">#WB-XXXXX</p>
+        
+        <div id="profRoleBadgeContainer" class="inline-block mt-1"></div>
+      </div>
+
+      <div id="adminPanel" class="hidden card-prestige p-6 rounded-2xl border-2 border-[var(--oni-purple)] shadow-[var(--oni-purple)]/20 shadow-xl space-y-4 mb-6 animate__animated animate__pulse">
+        <div class="flex items-center text-[var(--oni-purple)] font-black text-sm glitched">
+          <i class="fa-solid fa-crown mr-3 animate-pulse"></i> COMMAND_CENTER
+        </div>
+        <p class="text-xs text-slate-400 font-mono">GLOBAL_BACKGROUND_CONFIG</p>
+        <div class="relative">
+          <i class="fa-solid fa-link absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-sm"></i>
+          <input type="text" id="inputBgUrl" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-xs focus:outline-none focus:border-[var(--oni-purple)]" placeholder="https://domain.com/loop_video.mp4">
+        </div>
+        <button onclick="changeBackground()" class="w-full bg-slate-900 border border-[var(--oni-purple)] text-[var(--oni-purple)] hover:bg-[var(--oni-purple)] hover:text-white font-bold py-2.5 rounded-xl text-xs active:scale-95 transition-all flex items-center justify-center gap-2">
+          EXECUTE GLOBAL_CHANGE <i class="fa-solid fa-wand-sparkles"></i>
+        </button>
+      </div>
+
+      <button onclick="handleLogout()" class="w-full bg-slate-950 border border-slate-800 text-slate-600 py-3.5 rounded-xl text-sm font-bold active:scale-95 transition-all flex items-center justify-center gap-2">
+        TERMINATE SESSION <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+
+    <nav id="bottomNav" class="hidden fixed bottom-6 left-6 right-6 max-w-md mx-auto card-prestige rounded-full p-2.5 flex justify-around items-center shadow-2xl backdrop-blur-xl border border-slate-800 z-100">
+      <button onclick="switchPage('dashboard')" class="nav-item flex flex-col items-center text-[var(--oni-red)] transition-colors py-1.5 px-4 rounded-full relative">
+        <i class="fa-solid fa-circle-notch text-lg"></i>
+        <span class="text-[10px] mt-0.5 font-mono">Core</span>
+      </button>
+      <button onclick="switchPage('upload')" class="nav-item flex flex-col items-center text-slate-600 transition-colors py-1.5 px-4 rounded-full relative">
+        <i class="fa-solid fa-satellite-dish text-lg"></i>
+        <span class="text-[10px] mt-0.5 font-mono">Data</span>
+      </button>
+      <button onclick="switchPage('profile')" class="nav-item flex flex-col items-center text-slate-600 transition-colors py-1.5 px-4 rounded-full relative">
+        <i class="fa-solid fa-terminal text-lg"></i>
+        <span class="text-[10px] mt-0.5 font-mono">Config</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    // --- 1. CONFIGURATION & STATE REPOSITORIES ---
+    const SUPABASE_URL = "Https://sucjfcidkuwpowcuhiby.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_jsjo7DtYkZreIcE1YZFmHA_OInWjTMn"; 
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = {
+      id: null,
+      id_wibuku: "",
+      username: "",
+      role: "user",
+      custom_title: "",
+      avatar_url: ""
+    };
+
+    const DEFAULT_BG = "https://assets.mixkit.co/videos/preview/mixkit-red-smoke-on-black-background-48092-large.mp4";
+    const DEFAULT_AVATAR = "https://api.dicebear.com/8.x/notionists-neutral/svg?seed=AlveriaUser";
+
+    // Initialize System Core Loadout
+    window.addEventListener('DOMContentLoaded', () => {
+      setBgDOM(DEFAULT_BG);
+      loadSystemBackground();
+    });
+
+    async function loadSystemBackground() {
+      try {
+        let { data, error } = await supabase.from('system_settings').select('value').eq('key', 'background_url').single();
+        if (data && data.value) setBgDOM(data.value);
+      } catch(e) {}
+    }
+
+    function setBgDOM(url) {
+      const video = document.getElementById('bgVideo');
+      const source = document.getElementById('bgVideoSource');
+      const isVideo = url.match(/\.(mp4|webm|ogg)$|^data:video/i);
+      
+      if (isVideo) {
+        source.src = url;
+        video.style.display = 'block';
+        video.load();
+        video.play().catch(err => {});
+        document.getElementById('bgVideo').parentElement.style.backgroundImage = 'none';
+      } else {
+        video.style.display = 'none';
+        video.parentElement.style.backgroundImage = `url('${url}')`;
+        video.parentElement.style.backgroundSize = 'cover';
+        video.parentElement.style.backgroundPosition = 'center';
+      }
+    }
+
+    // --- 2. SINGLE PAGE APPLICATION SWITCH BAR LAYER ---
+    function switchPage(pageId) {
+      if (pageId === 'login') {
+        document.getElementById('bottomNav').classList.add('hidden');
+      } else {
+        document.getElementById('bottomNav').classList.remove('hidden');
+      }
+
+      const current = document.querySelector('.page.active');
+      if (current) current.classList.remove('active');
+      
+      const targetPage = document.getElementById(`page-${pageId}`);
+      if (targetPage) targetPage.classList.add('active');
+
+      const navButtons = document.querySelectorAll('.nav-item');
+      navButtons.forEach((btn, index) => {
+        btn.classList.remove('text-[var(--oni-red)]', 'text-[var(--oni-purple)]', 'text-slate-600');
+        btn.style.boxShadow = 'none';
+
+        if(pageId === 'dashboard' && index === 0) {
+          btn.classList.add('text-[var(--oni-red)]');
+          btn.style.boxShadow = '0 0 15px rgba(230, 30, 49, 0.4)';
+        } else if(pageId === 'upload' && index === 1) {
+          btn.classList.add('text-[var(--oni-red)]');
+          btn.style.boxShadow = '0 0 15px rgba(230, 30, 49, 0.4)';
+        } else if(pageId === 'profile' && index === 2) {
+          btn.classList.add('text-[var(--oni-purple)]');
+          btn.style.boxShadow = '0 0 15px rgba(157, 29, 253, 0.4)';
+        } else {
+          btn.classList.add('text-slate-600');
+        }
+      });
+    }
+
+    function updateFileName(input, targetId) {
+      const name = input.files[0] ? input.files[0].name : "CHOOSE_LOCAL_DATA";
+      const target = document.getElementById(targetId);
+      if (target.tagName === 'IMG') {
+        const reader = new FileReader();
+        reader.onload = e => target.src = e.target.result;
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        target.innerText = name;
+      }
+    }
+
+    // =========================================================================
+    // --- 3. HARDCODED MULTI-ADMIN ACCOUNT AUTHENTICATION MECHANISM ---
+    // =========================================================================
+    async function handleLogin() {
+      const idWibuku = document.getElementById('loginIdWibuku').value.trim();
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value.trim();
+
+      if (!idWibuku || !username || !password) {
+        showNotif("⚠️ Kolom data tidak lengkap!");
+        return;
+      }
+
+      document.getElementById('loadingOverlay').style.display = 'flex';
+
+      // PRE-LOADED SUPREME ADMINISTRATORS INDEX LIST
+      const adminList = [
+        {
+          id_wibuku: "1592012",
+          username: "Kamui",
+          password: "KamuiTenma",
+          title: "Leader",
+          role: "admin",
+          avatar: "https://api.dicebear.com/8.x/bottts-neutral/svg?seed=Kamui"
+        },
+        {
+          id_wibuku: "4990906",
+          username: "Kyy Alveria",
+          password: "KyySukaSuka",
+          title: "Vice Leader",
+          role: "admin",
+          avatar: "https://api.dicebear.com/8.x/bottts-neutral/svg?seed=Kyy"
+        }
+      ];
+
+      // Scan matrix credentials for direct hardcoded admin matched
+      const matchedAdmin = adminList.find(adm => 
+        adm.id_wibuku === idWibuku && 
+        adm.username.toLowerCase() === username.toLowerCase() && 
+        adm.password === password
+      );
+
+      if (matchedAdmin) {
+        currentUser.id = "admin-" + matchedAdmin.id_wibuku;
+        currentUser.username = matchedAdmin.username;
+        currentUser.id_wibuku = matchedAdmin.id_wibuku;
+        currentUser.role = matchedAdmin.role;
+        currentUser.custom_title = matchedAdmin.title;
+        currentUser.avatar_url = matchedAdmin.avatar;
+
+        applyUserDataToUI();
+        showNotif(`👑 PRESTIGE LINKED: Welcome, ${matchedAdmin.title} ${currentUser.username}!`);
+        document.getElementById('loadingOverlay').style.display = 'none';
+        switchPage('dashboard');
+        return;
+      }
+
+      // --- BACKUP ACCESS: SUPABASE CLOUD DATABASE ENGINES FOR NORMAL USERS ---
+      const aliasEmail = `${username}@alveria.key`;
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: aliasEmail,
+          password: password,
+        });
+
+        if (error) throw error;
+
+        currentUser.id = data.user.id;
+
+        const { data: profile, error: profError } = await supabase
+          .from('profiles')
+          .select('id_wibuku, username, role, avatar_url')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (profError) throw profError;
+
+        if (profile.id_wibuku !== idWibuku) {
+          throw new Error("ID Wibuku tidak sinkron dengan Operator Code.");
+        }
+
+        currentUser.username = profile.username;
+        currentUser.id_wibuku = profile.id_wibuku;
+        currentUser.role = profile.role || 'user';
+        currentUser.custom_title = currentUser.role === 'admin' ? 'Admin' : 'Verified Operator';
+        currentUser.avatar_url = profile.avatar_url;
+
+        applyUserDataToUI();
+        showNotif(`✅ LINK ESTABLISHED. Welcome, Operator ${currentUser.username}`);
+        switchPage('dashboard');
+
+      } catch (err) {
+        showNotif(`❌ ACCESS_DENIED: ${err.message}`);
+        document.getElementById('loginPass').value = ''; 
+      } finally {
+        document.getElementById('loadingOverlay').style.display = 'none';
+      }
+    }
+
+    // --- 4. DATA PROPAGATION GRAPHICS MAPPER TO APPLICATION UI ---
+    function applyUserDataToUI() {
+      document.getElementById('dashGreeting').innerText = currentUser.username;
+      
+      const titleDisplay = currentUser.custom_title || currentUser.role.toUpperCase();
+      document.getElementById('dashRoleDisplay').innerText = titleDisplay;
+      
+      const headBadge = document.getElementById('headerRoleBadge');
+      const headAv = document.getElementById('headerAvatar');
+      const avatarSrc = currentUser.avatar_url || DEFAULT_AVATAR;
+
+      headBadge.innerText = titleDisplay;
+      headBadge.classList.remove('hidden', 'border-[var(--oni-purple)]', 'text-[var(--oni-purple)]', 'admin-bling');
+      
+      headAv.src = avatarSrc;
+      headAv.classList.remove('hidden');
+
+      document.getElementById('profUsername').innerText = currentUser.username;
+      document.getElementById('profIdWibuku').innerText = `#${currentUser.id_wibuku}`;
+      document.getElementById('profAvatar').src = avatarSrc;
+
+      const badgeCont = document.getElementById('profRoleBadgeContainer');
+      const adminPan = document.getElementById('adminPanel');
+
+      if (currentUser.role === 'admin') {
+        // Dynamic rainbow implementation with explicit special premium titles
+        badgeCont.innerHTML = `<span class="admin-bling text-sm px-4 py-1.5">⚡ ${titleDisplay.toUpperCase()} ALVERIA ⚡</span>`;
+        headBadge.classList.add('admin-bling');
+        adminPan.classList.remove('hidden'); 
+      } else {
+        badgeCont.innerHTML = `<span class="text-xs bg-slate-900 text-slate-400 border border-slate-700 px-4 py-1.5 rounded-full font-mono uppercase tracking-wider">Verified Operator</span>`;
+        headBadge.classList.add('border-slate-700', 'text-slate-500');
+        adminPan.classList.add('hidden');
+      }
+    }
+
+    // --- 5. INTERACTIVE IMAGE PROFILES LOADER (SUPABASE AVATARS BUCKET) ---
+    async function handleAvatarUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      if (currentUser.id.startsWith("admin-")) {
+        showNotif("⚠️ Mode Bypass Akun Admin tidak mendukung ubah storage!");
+        return;
+      }
+      
+      const file = input.files[0];
+      const avatarLoader = document.getElementById('avatarLoading');
+      const profAvStatus = document.getElementById('profAvatarStatus');
+
+      if (!file.type.match('image.*')) {
+        showNotif("❌ Error: Format harus berupa gambar!");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) { 
+        showNotif("❌ Error: Batas maksimum ukuran file 2MB!");
+        return;
+      }
+
+      avatarLoader.classList.remove('hidden');
+      profAvStatus.innerText = "UPLOADING_DATA...";
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUser.id}_${Date.now()}.${fileExt}`;
+
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        const publicUrl = data.publicUrl;
+
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', currentUser.id);
+
+        if (updateError) throw updateError;
+
+        currentUser.avatar_url = publicUrl;
+        document.getElementById('profAvatar').src = publicUrl;
+        document.getElementById('headerAvatar').src = publicUrl;
+        profAvStatus.innerText = "Tap photo to change";
+        showNotif("✅ Profile photo transmission matrix updated.");
+
+      } catch (err) {
+        showNotif(`❌ Upload Interrupted: ${err.message}`);
+        document.getElementById('profAvatar').src = currentUser.avatar_url || DEFAULT_AVATAR;
+      } finally {
+        avatarLoader.classList.add('hidden');
+      }
+    }
+
+    // --- 6. DATA LINK SYSTEM CORE INGESTION (UPLOAD BUKTI) ---
+    async function handleUpload() {
+      const fileInput = document.getElementById('fileBukti');
+      if (!fileInput.files[0]) {
+        showNotif("❌ Silahkan pilih data berkas!");
+        return;
+      }
+      
+      showNotif("🚀 Initiating data link transmission...");
+      document.getElementById('loadingOverlay').style.display = 'flex';
+      const file = fileInput.files[0];
+      
+      try {
+        const dummyUrl = `https://sucjfcidkuwpowcuhiby.supabase.co/storage/v1/object/public/bukti/tx_${Date.now()}.png`;
+
+        const { error } = await supabase
+          .from('bukti_upload')
+          .insert([
+            { 
+              user_id: currentUser.id.includes("admin-") ? null : currentUser.id, 
+              username: currentUser.username, 
+              file_url: dummyUrl
             }
+          ]);
+
+        if (error) throw error;
+
+        showNotif(`🎯 TRANSMISSION_COMPLETE: Data '${file.name}' dikirim.`);
+        
+        // Broadcast push notification to local scope alert to admin
+        if (currentUser.role === 'admin') {
+          alert(`[ALERT INTERNAL ADMIN] Sistem mendeteksi berkas baru masuk dari operator: ${currentUser.username}!`);
         }
 
-        function getDynamicUserTitle(donateValue) {
-            if (donateValue <= 0) return "✨ Wibu Recruit ✨";
-            if (donateValue < 50000) return "🔥 Crimson Demon 🔥";
-            return "🛡️ Overlord Elite 🛡️";
-        }
+        fileInput.value = '';
+        document.getElementById('fileName').innerText = "CHOOSE_LOCAL_DATA";
+        switchPage('dashboard');
 
-        function previewImg(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) { 
-                    document.getElementById('preview').src = e.target.result; 
-                    document.getElementById('preview').classList.remove('hidden'); 
-                    document.getElementById('prompt').classList.add('hidden'); 
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+      } catch(err) {
+        showNotif(`❌ Transmission Error: ${err.message}`);
+      } finally {
+        document.getElementById('loadingOverlay').style.display = 'none';
+      }
+    }
 
-        // --- SISTEM KIRIM TRANSAKSI BUKTI ---
-        async function submitBuktiToCloud(e) {
-            e.preventDefault(); 
-            const fileInput = document.getElementById('up-file');
-            const idW = document.getElementById('up-id').value; 
-            const user = document.getElementById('up-user').value;
-            const donateAmount = parseInt(document.getElementById('up-donate').value); 
-            
-            if (!fileInput.files[0]) return;
-            
-            const file = fileInput.files[0]; 
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`; 
-            const filePath = `bukti/${fileName}`;
-            
-            try {
-                await _supabase.storage.from('bukti-transfer').upload(filePath, file, { cacheControl: '3600', upsert: true });
-                const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
-                
-                await _supabase.from('pending_approvals').insert([{ id_wibuku: idW, username: user, wibu_game_requested: donateAmount, photo_url: urlData.publicUrl }]);
-                
-                const waText = `Halo Owner,%0A%0ASaya telah mengajukan top up saldo.%0A- *ID Wibuku:* ${idW}%0A- *Username:* ${user}%0A- *Jumlah:* ${donateAmount} Wibu Game`;
-                window.open(`https://api.whatsapp.com/send?phone=6289531980008&text=${waText}`, '_blank');
-                location.reload();
-            } catch (err) {
-                alert("Gagal memproses transaksi bukti.");
-            }
-        }
+    // --- 7. ADMIN GLOBAL SETTING VISUAL CONTROLLER ---
+    async function changeBackground() {
+      if (currentUser.role !== 'admin') return;
 
-        function changeVideo() {
-            let url = document.getElementById('video-url').value;
-            if(url) { 
-                localStorage.setItem('ic_custom_video', url); 
-                document.getElementById('bg-video').src = url; 
-                alert("Background updated!"); 
-            }
-        }
+      const url = document.getElementById('inputBgUrl').value.trim();
+      if(!url) {
+        showNotif("⚠️ Masukkan URL aliran streaming valid!");
+        return;
+      }
 
-        function logout() { 
-            localStorage.clear(); 
-            activeUserSession = null; 
-            navigateTo('welcome'); 
-        }
-    </script>
+      setBgDOM(url);
+      showNotif("🔮 Visual anomaly overlay executed globally.");
+
+      try {
+        await supabase.from('system_settings').upsert({ key: 'background_url', value: url });
+      } catch(e) {
+        console.error("Cloud parameters mismatch.");
+      }
+    }
+
+    // --- 8. GLOBAL ENGINE UTILITIES ---
+    function showNotif(msg) {
+      const notif = document.getElementById('notification');
+      document.getElementById('notifText').innerText = msg;
+      notif.classList.remove('hidden');
+      setTimeout(() => {
+        notif.classList.add('hidden');
+      }, 4000);
+    }
+
+    async function handleLogout() {
+      try { await supabase.auth.signOut(); } catch(e){}
+      
+      currentUser = { id: null, id_wibuku: "", username: "", role: "user", custom_title: "", avatar_url: "" };
+      
+      document.getElementById('loginIdWibuku').value = '';
+      document.getElementById('loginUser').value = '';
+      document.getElementById('loginPass').value = '';
+      
+      switchPage('login');
+      showNotif("🔒 System connection terminated. Secure lock active.");
+    }
+  </script>
 </body>
 </html>
