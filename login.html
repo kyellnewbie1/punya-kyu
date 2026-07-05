@@ -34,7 +34,7 @@
             </div>
             <div>
                 <input type="text" id="auth-id" placeholder="ID Wibuku (Khusus User Baru)" class="w-full bg-zinc-950/30 border border-zinc-900 rounded-xl py-2.5 px-4 text-xs focus:outline-none focus:border-zinc-700 transition-all text-zinc-400">
-                <span class="text-[9px] text-zinc-600 block mt-1 pl-1">*Kosongkan jika akun sudah terdaftar / Admin GitHub</span>
+                <span class="text-[9px] text-zinc-600 block mt-1 pl-1">*Kosongkan jika kamu Admin di GitHub</span>
             </div>
             <button type="submit" id="btn-submit" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 text-white rounded-xl text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(255,0,60,0.3)]">
                 Authorize Session
@@ -43,10 +43,9 @@
     </div>
 
     <script>
-        // Menggunakan URL JSON path repositori terupdate milikmu
+        // Memakai link raw github kamu yang sudah benar di gambar 104678.jpg
         const GITHUB_JSON_URL = "https://raw.githubusercontent.com/kyellnewbie1/punya-kyu/refs/heads/main/accounts.json"; 
         
-        // Supabase Client Config
         const SUPABASE_URL = "https://smfrshlomjdeafxabvii.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_l5i2m71eYD45yBrAA_kdrw_dSddOWd4";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -56,24 +55,25 @@
             const btn = document.getElementById('btn-submit');
             btn.disabled = true; btn.innerText = "Processing Matrix...";
 
+            // Dipastikan tidak ada spasi yang merusak data inputan
             const usernameInput = document.getElementById('auth-user').value.trim();
             const passwordInput = document.getElementById('auth-pass').value.trim();
             const idWibukuInput = document.getElementById('auth-id').value.trim();
 
             try {
-                // 1. Membaca data akun admin/staff langsung dari JSON GitHub
-                const res = await fetch(GITHUB_JSON_URL);
+                // 1. Ambil data dari repository github kustom kamu
+                const res = await fetch(GITHUB_JSON_URL + '?t=' + Date.now()); // bypass cache browser
                 if (!res.ok) throw new Error("Gagal membaca config akun dari GitHub.");
                 const githubData = await res.json();
                 
-                // Pengecekan kecocokan akun staf khusus
+                // Cari data akun staff di file json github kamu
                 const adminMatch = githubData.staff_accounts.find(acc => 
                     acc.username.toLowerCase() === usernameInput.toLowerCase() && 
                     String(acc.password) === passwordInput
                 );
 
                 if (adminMatch) {
-                    // Sinkronisasi data admin ke Supabase users_profile jika belum tercatat
+                    // PENTING: Paksa simpan / daftarkan ke tabel database Supabase dulu biar profilnya gak kosong
                     const { data: checkDb } = await _supabase.from('users_profile').select('*').eq('username', adminMatch.username).single();
                     if (!checkDb) {
                         await _supabase.from('users_profile').insert([{
@@ -84,7 +84,8 @@
                         }]);
                     }
                     
-                    // Simpan sesi pendaftaran lokal
+                    // Kunci data sesi lokal
+                    localStorage.clear(); // bersihkan sampah sisa login guest sebelumnya
                     localStorage.setItem('ic_session', JSON.stringify({
                         username: adminMatch.username,
                         idWibuku: String(adminMatch.id_wibuku),
@@ -92,30 +93,31 @@
                         title: adminMatch.title
                     }));
 
-                    alert(`Otorisasi Berhasil! Selamat datang kembali ${adminMatch.title} ${adminMatch.username}.`);
-                    window.location.href = 'dashboard.html';
+                    alert(`Otorisasi Berhasil! Selamat datang ${adminMatch.title} ${adminMatch.username}.`);
+                    // Gunakan rute lokasi relatif agar aman di Vercel deployment
+                    window.location.replace('dashboard.html');
                     return;
                 }
 
-                // 2. Jika tidak terdaftar di konfigurasi staff GitHub, periksa database Supabase
-                const { data: userDb, error: fetchErr } = await _supabase
+                // 2. Jika user biasa, periksa ke database Supabase
+                const { data: userDb } = await _supabase
                     .from('users_profile')
                     .select('*')
                     .eq('username', usernameInput)
                     .single();
 
                 if (userDb) {
+                    localStorage.clear();
                     localStorage.setItem('ic_session', JSON.stringify({
                         username: userDb.username,
                         idWibuku: userDb.id_wibuku,
                         role: userDb.role,
                         title: "User"
                     }));
-                    window.location.href = 'dashboard.html';
+                    window.location.replace('dashboard.html');
                 } else {
-                    // Mendaftarkan user biasa yang baru pertama kali login
                     if (!idWibukuInput) {
-                        alert("Akun baru terdeteksi! Harap masukkan ID Wibuku Anda untuk proses pembuatan akun.");
+                        alert("Akun baru terdeteksi! Mohon masukkan ID Wibuku kamu di kolom paling bawah.");
                         btn.disabled = false; btn.innerText = "Authorize Session";
                         return;
                     }
@@ -129,8 +131,9 @@
                             total_donate: 0
                         }]);
 
-                    if (insertErr) throw new Error("Registrasi database gagal: " + insertErr.message);
+                    if (insertErr) throw insertErr;
 
+                    localStorage.clear();
                     localStorage.setItem('ic_session', JSON.stringify({
                         username: usernameInput,
                         idWibuku: idWibukuInput,
@@ -138,8 +141,8 @@
                         title: "User"
                     }));
 
-                    alert("Akun baru berhasil didaftarkan otomatis ke cloud Supabase!");
-                    window.location.href = 'dashboard.html';
+                    alert("Akun baru kamu berhasil dibuat di Supabase!");
+                    window.location.replace('dashboard.html');
                 }
 
             } catch (err) {
