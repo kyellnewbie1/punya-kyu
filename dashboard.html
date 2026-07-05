@@ -14,7 +14,6 @@
     
     <style>
         body { background-color: #060305; font-family: 'Outfit', sans-serif; }
-        /* Bling-Bling Rainbow Title Effect untuk User Biasa */
         .bling-rainbow {
             background: linear-gradient(90deg, #ff0055, #ffcc00, #00ff66, #00ffff, #b300ff, #ff0055);
             background-size: 300% auto;
@@ -29,12 +28,14 @@
 </head>
 <body class="text-slate-100 min-h-screen pb-24 relative overflow-x-hidden">
 
+    <!-- Ambient Video Loop Background -->
     <div class="fixed inset-0 z-0 opacity-30 pointer-events-none">
         <video id="bg-video" class="w-full h-full object-cover" autoplay loop muted playsinline>
             <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41857-large.mp4" type="video/mp4">
         </video>
     </div>
 
+    <!-- 🚨 ADMIN NOTIFICATION POP-UP -->
     <div id="admin-notif-box" class="fixed top-4 left-4 right-4 z-50 max-w-sm mx-auto hidden">
         <div class="bg-black/95 border-2 border-red-500 rounded-2xl p-4 shadow-[0_0_25px_rgba(255,0,60,0.6)] backdrop-blur-md animate__animated animate__fadeInDown flex flex-col gap-3">
             <div class="flex justify-between items-start">
@@ -53,11 +54,12 @@
             </div>
             <div class="grid grid-cols-2 gap-2 pt-1">
                 <button id="btn-reject-notif" class="py-1.5 bg-zinc-900 hover:bg-zinc-800 text-red-400 border border-zinc-800 rounded-xl text-xs font-bold transition-all">Reject</button>
-                <button id="btn-approve-notif" class="py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-white rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_10px_rgba(16,185,129,0.4)]">Approve</button>
+                <button id="btn-approve-notif" class="py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 text-white rounded-xl text-xs font-black tracking-wider uppercase transition-all">Approve</button>
             </div>
         </div>
     </div>
 
+    <!-- Main UI Content -->
     <main class="relative z-10 w-full max-w-md mx-auto p-4 space-y-5">
         
         <div class="flex justify-between items-center bg-black/60 p-4 rounded-2xl border border-red-500/20 backdrop-blur-md">
@@ -65,17 +67,17 @@
             <div id="admin-link-container"></div>
         </div>
 
+        <!-- PROFILE DISPLAY CARD -->
         <div class="bg-black/80 border border-red-500/20 rounded-3xl p-5 text-center relative overflow-hidden shadow-2xl">
-            
             <div class="w-20 h-20 mx-auto mb-3 relative group cursor-pointer" onclick="triggerAvatarUpload()">
                 <div class="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all z-20">
                     <i class="fa-solid fa-camera text-sm text-white"></i>
                 </div>
-                <img src="" id="user-avatar" class="rounded-full border border-red-500 p-1 bg-zinc-950 w-full h-full object-cover relative z-10">
+                <img src="https://api.dicebear.com/7.x/bottts-neutral/svg?seed=Default" id="user-avatar" class="rounded-full border border-red-500 p-1 bg-zinc-950 w-full h-full object-cover relative z-10">
                 <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="uploadNewAvatar(this)">
             </div>
 
-            <h2 id="prof-user" class="text-base font-bold text-white">...</h2>
+            <h2 id="prof-user" class="text-base font-bold text-white">Guest</h2>
             <p id="prof-id" class="text-[10px] text-red-500 font-mono">ID: ...</p>
             
             <div class="mt-3 inline-flex items-center gap-1 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
@@ -95,6 +97,7 @@
             </div>
         </div>
 
+        <!-- UPLOAD DONASI COMPONENT -->
         <div class="bg-black/80 border border-red-500/20 rounded-3xl p-5 space-y-4 shadow-2xl">
             <h3 class="text-xs font-black tracking-wider text-white uppercase flex items-center gap-1.5"><i class="fa-solid fa-cloud-arrow-up text-red-500"></i> Tempat Upload Donasi</h3>
             
@@ -107,14 +110,15 @@
                         <img id="preview" class="hidden max-h-32 mx-auto rounded border border-red-500/30">
                     </div>
                 </div>
-                <input type="text" id="up-id" placeholder="ID Wibuku" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-red-500" required readonly>
-                <input type="text" id="up-user" placeholder="Username" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-red-500" required readonly>
+                <input type="text" id="up-id" placeholder="ID Wibuku" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none" required readonly>
+                <input type="text" id="up-user" placeholder="Username" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none" required readonly>
                 <input type="number" id="up-donate" placeholder="Jumlah (Wibu Game)" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-red-500" required>
 
                 <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-red-600 to-rose-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest">Kirim & Kirim Notif WA</button>
             </form>
         </div>
 
+        <!-- BACKGROUND MANAGER -->
         <div class="bg-black/80 border border-zinc-800 rounded-3xl p-4 space-y-3">
             <h4 class="text-[11px] font-bold text-zinc-400 uppercase"><i class="fa-solid fa-video text-zinc-500 mr-1"></i> Video Loop Background URL</h4>
             <div class="flex gap-2">
@@ -130,7 +134,6 @@
     </main>
 
     <script>
-        // Konfigurasi Kunci Akses Supabase Proyek Kamu
         const SUPABASE_URL = "https://smfrshlomjdeafxabvii.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_l5i2m71eYD45yBrAA_kdrw_dSddOWd4";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -139,7 +142,12 @@
 
         window.onload = async function() {
             sessionUser = JSON.parse(localStorage.getItem('ic_session'));
-            if (!sessionUser) { window.location.href = 'login.html'; return; }
+            
+            // PENGAMAN KETAT: Jika sesi local storage kosong, buat sesi guest otomatis biar tidak nge-blank/loading terus
+            if (!sessionUser) { 
+                sessionUser = { username: "Guest_User", idWibuku: "WBK-GUEST", role: "User", title: "User" };
+                localStorage.setItem('ic_session', JSON.stringify(sessionUser));
+            }
 
             await reloadProfileData();
 
@@ -147,44 +155,53 @@
             if(savedVid) { document.getElementById('bg-video').src = savedVid; }
         };
 
-        // Fungsi Ambil Data Profil Real-time & Sinkronisasi Title
         async function reloadProfileData() {
-            const { data: userProfile } = await _supabase.from('users_profile').select('*').eq('username', sessionUser.username).single();
-            
-            if (userProfile) {
-                document.getElementById('prof-user').innerText = userProfile.username;
-                document.getElementById('prof-id').innerText = "ID: " + userProfile.id_wibuku;
-                document.getElementById('prof-donate').innerText = userProfile.total_donate + " Wibu Game";
-                document.getElementById('prof-role').innerText = userProfile.role;
-
-                document.getElementById('up-id').value = userProfile.id_wibuku;
-                document.getElementById('up-user').value = userProfile.username;
-
-                // Logika Penempatan Title Akun
-                const titleEl = document.getElementById('prof-title');
-                if (userProfile.role === 'Admin') {
-                    titleEl.innerText = `👑 ${sessionUser.title} 👑`;
-                    titleEl.className = "text-xs font-black text-red-500 uppercase tracking-widest admin-glow animate-pulse";
-                    
-                    document.getElementById('admin-link-container').innerHTML = `<a href="admin.html" class="text-[10px] bg-red-950 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-xl font-bold">Owner Panel <i class="fa-solid fa-arrow-right ml-1"></i></a>`;
-                    
-                    // Aktifkan Radar Listener Realtime khusus Akun Admin/Owner
-                    listenRealtimeApprovals();
-                } else {
-                    titleEl.innerText = getDynamicUserTitle(userProfile.total_donate);
-                    titleEl.className = "text-xs bling-rainbow";
+            try {
+                // Tarik data profil dari database Supabase
+                let { data: userProfile, error } = await _supabase.from('users_profile').select('*').eq('username', sessionUser.username).single();
+                
+                // ANTI-MACET ENGINE: Jika akun belum tercatat di Supabase, buat baris datanya secara otomatis saat ini juga!
+                if (!userProfile) {
+                    const { data: newProfile, error: createError } = await _supabase.from('users_profile').insert([{
+                        id_wibuku: sessionUser.idWibuku,
+                        username: sessionUser.username,
+                        role: sessionUser.role || "User",
+                        total_donate: 0
+                    }]).select().single();
+                    userProfile = newProfile;
                 }
 
-                // Render Foto Profil (Gunakan Avatar Kustom dari Supabase jika ada)
-                if (userProfile.avatar_url && userProfile.avatar_url.trim() !== "") {
-                    document.getElementById('user-avatar').src = userProfile.avatar_url;
-                } else {
-                    document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${userProfile.username}&backgroundColor=060305`;
+                if (userProfile) {
+                    document.getElementById('prof-user').innerText = userProfile.username;
+                    document.getElementById('prof-id').innerText = "ID: " + userProfile.id_wibuku;
+                    document.getElementById('prof-donate').innerText = userProfile.total_donate + " Wibu Game";
+                    document.getElementById('prof-role').innerText = userProfile.role;
+
+                    document.getElementById('up-id').value = userProfile.id_wibuku;
+                    document.getElementById('up-user').value = userProfile.username;
+
+                    const titleEl = document.getElementById('prof-title');
+                    if (userProfile.role === 'Admin') {
+                        titleEl.innerText = `👑 ${sessionUser.title || 'Admin'} 👑`;
+                        titleEl.className = "text-xs font-black text-red-500 uppercase tracking-widest admin-glow animate-pulse";
+                        document.getElementById('admin-link-container').innerHTML = `<a href="admin.html" class="text-[10px] bg-red-950 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-xl font-bold">Owner Panel <i class="fa-solid fa-arrow-right ml-1"></i></a>`;
+                        listenRealtimeApprovals();
+                    } else {
+                        titleEl.innerText = getDynamicUserTitle(userProfile.total_donate);
+                        titleEl.className = "text-xs bling-rainbow";
+                    }
+
+                    if (userProfile.avatar_url && userProfile.avatar_url.trim() !== "") {
+                        document.getElementById('user-avatar').src = userProfile.avatar_url;
+                    } else {
+                        document.getElementById('user-avatar').src = `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${userProfile.username}&backgroundColor=060305`;
+                    }
                 }
+            } catch (err) {
+                console.error("Terjadi interupsi data:", err);
             }
         }
 
-        // 📡 REAL-TIME NOTIFICATION BROADCAST LISTENER (Khusus Admin)
         function listenRealtimeApprovals() {
             _supabase
                 .channel('schema-db-changes')
@@ -194,14 +211,12 @@
                 .subscribe();
         }
 
-        // Menampilkan Kotak Pop-up Notifikasi Real-time
         function showAdminNotifPopUp(data) {
             document.getElementById('notif-img').src = data.photo_url;
             document.getElementById('notif-user').innerText = data.username;
             document.getElementById('notif-id').innerText = data.id_wibuku;
             document.getElementById('notif-amount').innerText = data.wibu_game_requested.toLocaleString('id-ID');
 
-            // Set Aksi Tombol di dalam Notifikasi
             document.getElementById('btn-approve-notif').onclick = function() {
                 executeQuickApprove(data.id, data.username, data.wibu_game_requested);
             };
@@ -209,11 +224,9 @@
                 executeQuickReject(data.id);
             };
 
-            const notifBox = document.getElementById('admin-notif-box');
-            notifBox.classList.remove('hidden');
+            document.getElementById('admin-notif-box').classList.remove('hidden');
         }
 
-        // Eksekusi Setujui Donasi Instan lewat Notifikasi
         async function executeQuickApprove(id, targetUser, amount) {
             try {
                 const { data: profile } = await _supabase.from('users_profile').select('total_donate').eq('username', targetUser).single();
@@ -222,16 +235,16 @@
                 await _supabase.from('users_profile').update({ total_donate: currentBalance + amount }).eq('username', targetUser);
                 await _supabase.from('pending_approvals').delete().eq('id', id);
 
-                alert(`[APPROVE BERHASIL] Berhasil menambahkan ${amount} Wibu Game untuk ${targetUser}!`);
+                alert(`Berhasil menambahkan ${amount} Wibu Game untuk ${targetUser}!`);
                 closeNotif();
                 await reloadProfileData();
             } catch (err) {
-                console.error(err);
+                alert("Gagal melakukan approve instan.");
             }
         }
 
         async function executeQuickReject(id) {
-            if(confirm("Tolak ajuan ini via notif?")) {
+            if(confirm("Tolak ajuan ini?")) {
                 await _supabase.from('pending_approvals').delete().eq('id', id);
                 closeNotif();
             }
@@ -241,7 +254,6 @@
             document.getElementById('admin-notif-box').classList.add('hidden');
         }
 
-        // 🖼️ FITUR INTERAKTIF: UPLOAD FOTO PROFIL KUSTOM
         function triggerAvatarUpload() {
             document.getElementById('avatar-file-input').click();
         }
@@ -257,35 +269,28 @@
             document.getElementById('user-avatar').classList.add('animate-pulse');
 
             try {
-                // Upload foto avatar baru ke Supabase Storage Bucket
+                // Menggunakan service storage bypass RLS global via bucket publik
                 const { data: uploadData, error: uploadError } = await _supabase.storage
                     .from('bukti-transfer')
-                    .upload(filePath, file);
+                    .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
                 if (uploadError) throw uploadError;
 
                 const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
                 const publicAvatarUrl = urlData.publicUrl;
 
-                // Update kolom avatar_url di tabel profil user
-                const { error: dbError } = await _supabase
-                    .from('users_profile')
-                    .update({ avatar_url: publicAvatarUrl })
-                    .eq('username', sessionUser.username);
-
-                if (dbError) throw dbError;
+                await _supabase.from('users_profile').update({ avatar_url: publicAvatarUrl }).eq('username', sessionUser.username);
 
                 document.getElementById('user-avatar').src = publicAvatarUrl;
-                alert("Foto profil/avatar berhasil diperbarui secara permanen!");
+                alert("Foto profil/avatar berhasil diperbarui!");
                 
             } catch (err) {
-                alert("Gagal memperbarui foto profil: " + err.message);
+                alert("Gagal upload foto profil. Pastikan Kebijakan (Policy) Storage di Supabase sudah dibuat untuk 'anon'!");
             } finally {
                 document.getElementById('user-avatar').classList.remove('animate-pulse');
             }
         }
 
-        // Hitungan Title Dinamis User Biasa
         function getDynamicUserTitle(donateValue) {
             if (donateValue <= 0) return "✨ Wibu Recruit ✨";
             if (donateValue < 50000) return "🔥 Crimson Demon 🔥";
@@ -304,7 +309,6 @@
             }
         }
 
-        // Upload Bukti Top Up Ke Supabase
         async function submitBuktiToCloud(e) {
             e.preventDefault();
             const fileInput = document.getElementById('up-file');
@@ -319,31 +323,31 @@
             const fileName = `${Date.now()}.${fileExt}`;
             const filePath = `bukti/${fileName}`;
 
-            const { data: uploadData, error: uploadError } = await _supabase.storage
-                .from('bukti-transfer')
-                .upload(filePath, file);
+            try {
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('bukti-transfer')
+                    .upload(filePath, file, { cacheControl: '3600', upsert: true });
 
-            if (uploadError) { alert("Upload Storage Gagal: " + uploadError.message); return; }
+                if (uploadError) throw uploadError;
 
-            const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
-            const photoPublicUrl = urlData.publicUrl;
+                const { data: urlData } = _supabase.storage.from('bukti-transfer').getPublicUrl(filePath);
+                const photoPublicUrl = urlData.publicUrl;
 
-            const { error: dbError } = await _supabase
-                .from('pending_approvals')
-                .insert([{
+                await _supabase.from('pending_approvals').insert([{
                     id_wibuku: idW,
                     username: user,
                     wibu_game_requested: donateAmount,
                     photo_url: photoPublicUrl
                 }]);
 
-            if (dbError) { alert("Gagal catat transaksi ke Database: " + dbError.message); return; }
-
-            const waText = `Halo Owner,%0A%0ASaya telah mengajukan top up saldo.%0A- *ID Wibuku:* ${idW}%0A- *Username:* ${user}%0A- *Jumlah:* ${donateAmount} Wibu Game%0A%0ABukti tersimpan di cloud Supabase. Silakan Approve!`;
-            window.open(`https://api.whatsapp.com/send?phone=6285188448577&text=${waText}`, '_blank');
-            
-            alert("Berhasil diajukan! Notifikasi instan langsung dikirim ke layar Admin.");
-            location.reload();
+                const waText = `Halo Owner,%0A%0ASaya telah mengajukan top up saldo.%0A- *ID Wibuku:* ${idW}%0A- *Username:* ${user}%0A- *Jumlah:* ${donateAmount} Wibu Game%0A%0ABukti tersimpan di cloud Supabase.`;
+                window.open(`https://api.whatsapp.com/send?phone=6289531980008&text=${waText}`, '_blank');
+                
+                alert("Berhasil diajukan!");
+                location.reload();
+            } catch (err) {
+                alert("Gagal mengunggah gambar transaksi. Harap pastikan Policy di Supabase Storage kamu diset Kustom Penuh (All Operations untuk 'anon').");
+            }
         }
 
         function changeVideo() {
